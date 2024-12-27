@@ -10,10 +10,13 @@ import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 import io.github.lzghzr.biliveinvisible.hooks.cHook;
 import io.github.lzghzr.biliveinvisible.hooks.gHook;
+import io.github.lzghzr.biliveinvisible.hooks.mHook;
 
 public class MainHook implements IXposedHookLoadPackage {
-  private static final String appName = "哔哩哔哩直播隐身观看";
+  public static final String appName = "哔哩哔哩直播隐身观看";
   private Context systcmContext;
+  private int appVersionCode = 0;
+  private mHook biliApp;
 
   // https://github.com/freedom-introvert/biliSendCommAntifraud/blob/010192b8f981b70ccc5d03e342bb407699ee98e0/biliSendCommAntifraud/app/src/main/java/icu/freedomIntrovert/biliSendCommAntifraud/xposed/XposedInit.java#L37
   private static Context systemContext() {
@@ -32,18 +35,18 @@ public class MainHook implements IXposedHookLoadPackage {
     }
 
     if (lpparam.packageName.equals("tv.danmaku.bili")) {//国内版
-      int appVersionCode = systcmContext.getPackageManager().getPackageInfo(lpparam.packageName, 0).versionCode;
-      try {
-        new cHook(lpparam).hook();
-      } catch (Throwable throwable) {
-        XposedBridge.log(appName + ": 国内版 " + appVersionCode + " 加载异常 " + throwable);
-      }
+      this.appVersionCode = systcmContext.getPackageManager().getPackageInfo(lpparam.packageName, 0).versionCode;
+      this.biliApp = new cHook(lpparam);
     } else if (lpparam.packageName.equals("com.bilibili.app.in")) {//国际版
-      int appVersionCode = systcmContext.getPackageManager().getPackageInfo(lpparam.packageName, 0).versionCode;
+      this.appVersionCode = systcmContext.getPackageManager().getPackageInfo(lpparam.packageName, 0).versionCode;
+      this.biliApp = new gHook(lpparam);
+    }
+
+    if (this.biliApp != null) {
       try {
-        new gHook(lpparam).hook();
+        this.biliApp.hook();
       } catch (Throwable throwable) {
-        XposedBridge.log(appName + ": 国际版 " + appVersionCode + " 加载异常 " + throwable);
+        XposedBridge.log(appName + " " + this.biliApp.product + " " + this.appVersionCode + " 加载异常 " + throwable);
       }
     }
   }
