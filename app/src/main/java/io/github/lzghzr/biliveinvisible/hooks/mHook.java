@@ -12,12 +12,14 @@ import de.robv.android.xposed.callbacks.XC_LoadPackage;
 
 public class mHook {
   private static final boolean DEBUG = false;
-  public String product;
+  private final String addCommonParamClass;
+  private final String watchHeartbeatClass;
   protected XC_LoadPackage.LoadPackageParam lpparam;
 
-  public mHook(XC_LoadPackage.LoadPackageParam lpparam, String product) {
+  public mHook(XC_LoadPackage.LoadPackageParam lpparam, String addCommonParamClass, String watchHeartbeatClass) {
     this.lpparam = lpparam;
-    this.product = product;
+    this.addCommonParamClass = addCommonParamClass;
+    this.watchHeartbeatClass = watchHeartbeatClass;
   }
 
   public void hook() throws Throwable {
@@ -30,7 +32,7 @@ public class mHook {
   protected void addCommonParam() throws Throwable {
     mHook that = this;
     XposedHelpers.findAndHookMethod(
-        "com.bilibili.bililive.infra.network.interceptor.a",
+        addCommonParamClass,
         lpparam.classLoader,
         "addCommonParam",
         Map.class,
@@ -75,7 +77,7 @@ public class mHook {
   protected void watchheartbeat() throws Throwable {
     mHook that = this;
     XposedHelpers.findAndHookMethod(
-        "com.bilibili.bililive.watchheartbeat.state.e",
+        watchHeartbeatClass,
         lpparam.classLoader,
         "run",
         new XC_MethodReplacement() {
@@ -90,7 +92,7 @@ public class mHook {
   // debug日志
   public void debugLog(String log) {
     if (DEBUG) {
-      XposedBridge.log(appName + " " + this.product + " " + log);
+      XposedBridge.log(appName + " " + lpparam.packageName + " " + log);
     }
   }
 }
