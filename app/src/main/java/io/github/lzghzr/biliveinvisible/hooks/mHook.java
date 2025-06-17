@@ -46,7 +46,7 @@ public class mHook {
             }
             // 获取用户信息
             if (((Map<String, ?>) param.args[0]).containsKey("not_mock_enter_effect")) {
-              ((Map<String, String>) param.args[0]).replace("not_mock_enter_effect", "0", "1");
+              ((Map<String, String>) param.args[0]).replace("room_id", "273022");
               that.debugLog("addCommonParam not_mock_enter_effect replaced");
             }
           }
